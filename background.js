@@ -1,4 +1,5 @@
-console.log("Background service worker for Image Info Extractor loaded.");
+
+const selectedUrl = []
 
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
