@@ -1,5 +1,4 @@
 
-const selectedUrl = []
 
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {

@@ -10,7 +10,7 @@
 
 async function onDocumentReady() {
   const page = document.getElementById('pageScroll')
-  observeDOM(page);
+  await observeDOM(page);
 
   const controlBar = `
     <div id="ext-control-bar" class="fixed w-full flex ease-out justify-center items-center select-none bottom-5 translate-y-0" style="z-index: 3; left: 50%; transform: translateX(-50%)">
@@ -74,6 +74,16 @@ async function onDocumentReady() {
 
     resetImageWrappers()
   })
+
+  await init()
+}
+
+async function init() {
+  await chrome.storage.local.set({selectedUrls: []})
+  await chrome.storage.local.set({isSelectMode: false})
+
+  const countElement = document.getElementById("ext-selected-img-count")
+  countElement.innerHTML = "0"
 }
 
 async function observeDOM(element) {
@@ -108,6 +118,13 @@ async function resetImageWrappers() {
   for (let i = 0; i < xpathResult.snapshotLength; i++) {
     updateSelectEffectState(false, getSelectEffectId(i))
   }
+  await resetSelectedUrls()
+}
+
+async function resetSelectedUrls() {
+  await chrome.storage.local.set({selectedUrls: []})
+  const countElement = document.getElementById("ext-selected-img-count")
+  countElement.innerHTML = "0"
 }
 
 function getAllImagesByXpath() { return document.evaluate('//div[contains(@class, "container/jobCard")]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)}
@@ -135,7 +152,7 @@ function initImageWrapper(index, targetElement) {
     `
     targetElement.insertAdjacentHTML('afterbegin', overlappingBox)
 
-    addPlaceHolderClickHandler(placeHolderId, selectEffectId)
+    addPlaceHolderClickHandler(targetElement, placeHolderId, selectEffectId)
   }
 }
 
@@ -155,11 +172,28 @@ function updateSelectEffectState(state, id) {
   }
 }
 
-function addPlaceHolderClickHandler(placeHolderId, selectEffectId) {
+function addPlaceHolderClickHandler(targetElement, placeHolderId, selectEffectId) {
   const selectEffect = document.getElementById(selectEffectId)
   const placeHolder = document.getElementById(placeHolderId)
-  placeHolder.addEventListener('click', () => {
-    selectEffect.style.display = (selectEffect.style.display === 'none') ? '' : 'none'
+  placeHolder.addEventListener('click', async () => {
+    const oldIsSelected = (selectEffect.style.display !== 'none')
+    const url = extractImageUrl(targetElement)
+    let selectedUrls = (await chrome.storage.local.get("selectedUrls"))?.selectedUrls
+
+    if (oldIsSelected) {
+      selectEffect.style.display = 'none'
+      selectedUrls = selectedUrls.filter((_url) => _url !== url)
+    }
+    else {
+      selectEffect.style.display = ''
+      if (!selectedUrls.includes(url)) {
+        selectedUrls.push(url)
+      }
+    }
+
+    const countElement = document.getElementById("ext-selected-img-count")
+    countElement.innerText = `${selectedUrls.length}`
+    await chrome.storage.local.set({selectedUrls: selectedUrls})
   })
 }
 
