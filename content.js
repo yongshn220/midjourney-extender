@@ -30,11 +30,11 @@ async function onDocumentReady() {
             Selected: <span id="ext-selected-img-count" class="w-[5ch]">1</span>
           </div>
           
-          <button class="disabled:!text-opacity-20 cursor-pointer select-none px-2 group-button group/button focus:.outline-none buttonActiveRing buttonHoverOpacity buttonActiveOpacity buttonActiveBackground buttonHoverBackground flex min-w-fit z-0 group-button shrink grow relative items-center justify-center gap-2 font-medium dark:bg-dark-700 bg-light-100 border-light-200/10 text-light-700 border dark:border-dark-600/30 dark:text-dark-100 text-[13px] pl-3 py-2 text-center rounded-md disabled:pointer-events-none">
+          <button id="ext-select-all-btn" class="disabled:!text-opacity-20 cursor-pointer select-none px-2 group-button group/button focus:.outline-none buttonActiveRing buttonHoverOpacity buttonActiveOpacity buttonActiveBackground buttonHoverBackground flex min-w-fit z-0 group-button shrink grow relative items-center justify-center gap-2 font-medium dark:bg-dark-700 bg-light-100 border-light-200/10 text-light-700 border dark:border-dark-600/30 dark:text-dark-100 text-[13px] pl-3 py-2 text-center rounded-md disabled:pointer-events-none">
             Select All
           </button>
      
-          <button class="disabled:!text-opacity-20 cursor-pointer select-none px-2 group-button group/button focus:.outline-none buttonActiveRing buttonHoverOpacity buttonActiveOpacity buttonActiveBackground buttonHoverBackground flex z-0 pr-4 group-button shrink grow relative items-center justify-center gap-2 font-medium dark:bg-dark-700 bg-light-100 border-light-200/10 text-light-700 border dark:border-dark-600/30 dark:text-dark-100 text-[13px] pl-3 py-2 text-center rounded-md disabled:pointer-events-auto disabled:cursor-not-allowed">
+          <button id="ext-download-btn" class="disabled:!text-opacity-20 cursor-pointer select-none px-2 group-button group/button focus:.outline-none buttonActiveRing buttonHoverOpacity buttonActiveOpacity buttonActiveBackground buttonHoverBackground flex z-0 pr-4 group-button shrink grow relative items-center justify-center gap-2 font-medium dark:bg-dark-700 bg-light-100 border-light-200/10 text-light-700 border dark:border-dark-600/30 dark:text-dark-100 text-[13px] pl-3 py-2 text-center rounded-md disabled:pointer-events-auto disabled:cursor-not-allowed">
             Download
           </button>
           
@@ -49,7 +49,19 @@ async function onDocumentReady() {
     </div>
   `
   page.insertAdjacentHTML('beforeend', controlBar)
+  await init()
+}
 
+async function init() {
+  // reset storage
+  await chrome.storage.local.set({selectedUrls: []})
+  await chrome.storage.local.set({isSelectMode: false})
+
+  // init count
+  const countElement = document.getElementById("ext-selected-img-count")
+  countElement.innerHTML = "0"
+
+  // add event listener
   const idleMode = document.getElementById("ext-idle-mode")
   const selectMode = document.getElementById("ext-select-mode")
   idleMode.addEventListener('click', () => {
@@ -63,8 +75,8 @@ async function onDocumentReady() {
     })
   })
 
-  const closeSelectMode = document.getElementById("ext-close-select-mode-btn")
-  closeSelectMode.addEventListener('click', () => {
+  const closeSelectModeBtn = document.getElementById("ext-close-select-mode-btn")
+  closeSelectModeBtn.addEventListener('click', () => {
     idleMode.style.display = ''
     selectMode.style.display = 'none'
 
@@ -75,15 +87,15 @@ async function onDocumentReady() {
     resetImageWrappers()
   })
 
-  await init()
-}
+  const downloadBtn = document.getElementById("ext-download-btn")
+  downloadBtn.addEventListener('click', () => {
 
-async function init() {
-  await chrome.storage.local.set({selectedUrls: []})
-  await chrome.storage.local.set({isSelectMode: false})
+  })
 
-  const countElement = document.getElementById("ext-selected-img-count")
-  countElement.innerHTML = "0"
+  const selectAllBtn = document.getElementById("ext-select-all-btn")
+  selectAllBtn.addEventListener('click', () => {
+
+  })
 }
 
 async function observeDOM(element) {
