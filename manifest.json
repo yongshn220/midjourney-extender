@@ -5,7 +5,8 @@
   "description": "Extract information of images from web pages.",
   "permissions": [
     "activeTab",
-    "downloads"
+    "downloads",
+    "storage"
   ],
   "web_accessible_resources": [
     {
